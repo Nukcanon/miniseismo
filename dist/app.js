@@ -8,7 +8,7 @@
   const HIGH_PASS_ALPHA = 0.8;
 
   const DEFAULT_SETTINGS = Object.freeze({
-    hideXAxis: false,
+    hideXAxis: true,
     accelXMin: 2,
     accelXMax: 5,
     accelYMin: 2,
@@ -540,6 +540,7 @@
   function applySettingsToUi() {
     dom.xAxisSection.hidden = state.settings.hideXAxis;
     dom.feedbackX.hidden = state.settings.hideXAxis;
+    dom.feedbackX.parentElement.classList.toggle("is-x-hidden", state.settings.hideXAxis);
     dom.timerMode.textContent = state.settings.timeInRangeOnly ? "적정 범위에서만 시간 측정" : "흔들림 감지 후 시작";
     requestAnimationFrame(() => Object.values(charts).forEach((chart) => chart.draw()));
   }

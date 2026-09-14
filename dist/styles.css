@@ -17,6 +17,8 @@
 
 * { box-sizing: border-box; }
 
+[hidden] { display: none !important; }
+
 html { background: #edf2f7; }
 
 body {
@@ -110,6 +112,7 @@ svg {
 .timer-panel.is-complete .timer { color: #67e8f9; text-shadow: 0 0 24px rgba(103,232,249,.22); }
 
 .feedback-stack { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.feedback-stack.is-x-hidden { grid-template-columns: 1fr; }
 .feedback-card {
   display: grid;
   grid-template-columns: 38px 1fr;

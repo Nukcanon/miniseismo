@@ -40,7 +40,7 @@
         </div>
 
         <div class="feedback-stack" aria-label="실시간 피드백">
-          <div id="feedbackX" class="feedback-card is-idle">
+          <div id="feedbackX" class="feedback-card is-idle" hidden>
             <span class="feedback-axis">X</span>
             <span class="feedback-message">대기 중</span>
           </div>
@@ -69,7 +69,7 @@
       <div id="notice" class="notice" hidden role="alert"></div>
 
       <section id="charts" class="charts-grid" aria-label="측정 그래프">
-        <article id="xAxisSection" class="axis-section">
+        <article id="xAxisSection" class="axis-section" hidden>
           <div class="axis-heading">
             <div>
               <span class="axis-kicker axis-x">X축</span>
@@ -140,7 +140,7 @@
           <h3>표시 설정</h3>
           <label class="switch-row">
             <span><strong>X축 숨기기</strong><small>Y축 그래프와 피드백만 표시합니다.</small></span>
-            <input id="hideXAxis" type="checkbox" role="switch">
+            <input id="hideXAxis" type="checkbox" role="switch" checked>
           </label>
         </section>
 
