@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="스마트폰 가속도 센서로 흔들림의 가속도와 진폭을 측정하는 실험 도구">
+  <title>MiniSeismo</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Cpath d='M6 34h10l5-15 8 30 7-28 6 13h16' fill='none' stroke='%2338bdf8' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="MiniSeismo">
+        <svg class="brand-mark" aria-hidden="true" viewBox="0 0 52 52">
+          <rect width="52" height="52" rx="14" fill="currentColor" opacity=".14"/>
+          <path d="M6 28h8l4-13 7 26 6-24 5 11h10" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <h1>MiniSeismo</h1>
+          <p>가속도 · 진폭 측정기</p>
+        </div>
+      </div>
+      <div id="sensorStatus" class="sensor-status" data-state="idle" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="sensorStatusText">센서 대기</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="control-deck" aria-label="측정 제어">
+        <div class="timer-panel">
+          <span class="eyebrow">측정 시간</span>
+          <output id="timer" class="timer" aria-live="off">0.00</output>
+          <span id="timerMode" class="timer-mode">흔들림 감지 후 시작</span>
+        </div>
+
+        <div class="feedback-stack" aria-label="실시간 피드백">
+          <div id="feedbackX" class="feedback-card is-idle">
+            <span class="feedback-axis">X</span>
+            <span class="feedback-message">대기 중</span>
+          </div>
+          <div id="feedbackY" class="feedback-card is-idle">
+            <span class="feedback-axis">Y</span>
+            <span class="feedback-message">대기 중</span>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="startStopButton" class="button button-primary" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></svg>
+            <span>측정 시작</span>
+          </button>
+          <button id="resetButton" class="button button-secondary" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v6h-6"/></svg>
+            <span>초기화</span>
+          </button>
+          <button id="settingsButton" class="button button-secondary" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.5 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.5a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.5 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.38.25.7.6.87 1 .09.2.13.43.13.66V11h.6v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg>
+            <span>설정</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="notice" class="notice" hidden role="alert"></div>
+
+      <section id="charts" class="charts-grid" aria-label="측정 그래프">
+        <article id="xAxisSection" class="axis-section">
+          <div class="axis-heading">
+            <div>
+              <span class="axis-kicker axis-x">X축</span>
+              <h2>좌우 흔들림</h2>
+            </div>
+            <div class="live-values" aria-label="X축 현재 값">
+              <span><strong id="valueAccelX">0.00</strong> m/s²</span>
+              <span><strong id="valueAmpX">0.00</strong> cm</span>
+            </div>
+          </div>
+          <div class="chart-pair">
+            <figure class="chart-card">
+              <figcaption>가속도 <span>m/s²</span></figcaption>
+              <canvas id="chartAccelX" aria-label="X축 가속도 그래프"></canvas>
+            </figure>
+            <figure class="chart-card">
+              <figcaption>진폭 <span>cm</span></figcaption>
+              <canvas id="chartAmpX" aria-label="X축 진폭 그래프"></canvas>
+            </figure>
+          </div>
+        </article>
+
+        <article class="axis-section">
+          <div class="axis-heading">
+            <div>
+              <span class="axis-kicker axis-y">Y축</span>
+              <h2>위아래 흔들림</h2>
+            </div>
+            <div class="live-values" aria-label="Y축 현재 값">
+              <span><strong id="valueAccelY">0.00</strong> m/s²</span>
+              <span><strong id="valueAmpY">0.00</strong> cm</span>
+            </div>
+          </div>
+          <div class="chart-pair">
+            <figure class="chart-card">
+              <figcaption>가속도 <span>m/s²</span></figcaption>
+              <canvas id="chartAccelY" aria-label="Y축 가속도 그래프"></canvas>
+            </figure>
+            <figure class="chart-card">
+              <figcaption>진폭 <span>cm</span></figcaption>
+              <canvas id="chartAmpY" aria-label="Y축 진폭 그래프"></canvas>
+            </figure>
+          </div>
+        </article>
+      </section>
+
+      <p class="placement-note">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 10v6M12 7h.01"/></svg>
+        스마트폰을 화면이 위로 향하게 책상에 평평하게 놓고 측정하세요. X축은 좌우, Y축은 위아래 방향입니다.
+      </p>
+    </main>
+  </div>
+
+  <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle">
+    <form id="settingsForm" novalidate>
+      <div class="dialog-header">
+        <div>
+          <span class="eyebrow">실험 조건</span>
+          <h2 id="settingsTitle">측정 설정</h2>
+        </div>
+        <button id="closeSettingsButton" class="icon-button" type="button" aria-label="설정 닫기">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <section class="settings-section">
+          <h3>표시 설정</h3>
+          <label class="switch-row">
+            <span><strong>X축 숨기기</strong><small>Y축 그래프와 피드백만 표시합니다.</small></span>
+            <input id="hideXAxis" type="checkbox" role="switch">
+          </label>
+        </section>
+
+        <section class="settings-section">
+          <div class="section-title-row">
+            <h3>적정 범위</h3>
+            <span>최소–최대</span>
+          </div>
+          <div id="xSettingsGroup" class="range-settings">
+            <fieldset>
+              <legend>X축 가속도 <span>m/s²</span></legend>
+              <label>최소<input id="accelXMin" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+              <label>최대<input id="accelXMax" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+            </fieldset>
+            <fieldset>
+              <legend>X축 진폭 <span>cm</span></legend>
+              <label>최소<input id="ampXMin" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+              <label>최대<input id="ampXMax" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+            </fieldset>
+          </div>
+          <div class="range-settings">
+            <fieldset>
+              <legend>Y축 가속도 <span>m/s²</span></legend>
+              <label>최소<input id="accelYMin" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+              <label>최대<input id="accelYMax" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+            </fieldset>
+            <fieldset>
+              <legend>Y축 진폭 <span>cm</span></legend>
+              <label>최소<input id="ampYMin" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+              <label>최대<input id="ampYMax" type="number" min="0" step="0.1" inputmode="decimal" required></label>
+            </fieldset>
+          </div>
+        </section>
+
+        <section class="settings-section">
+          <h3>시간 측정</h3>
+          <label class="switch-row">
+            <span><strong>적정 값일 때만 측정</strong><small>범위를 벗어나면 타이머가 잠시 멈춥니다.</small></span>
+            <input id="timeInRangeOnly" type="checkbox" role="switch">
+          </label>
+          <label class="full-field">
+            목표 흔들기 시간 <span>초 · 0이면 완료 알림 없음</span>
+            <input id="targetTime" type="number" min="0" step="0.1" inputmode="decimal" required>
+          </label>
+        </section>
+
+        <section class="settings-section">
+          <h3>알림</h3>
+          <label class="full-field">
+            피드백 최소 표시 시간 <span>초</span>
+            <input id="feedbackDuration" type="number" min="0" step="0.1" inputmode="decimal" required>
+          </label>
+          <label class="switch-row compact">
+            <span><strong>범위 이탈 소리</strong></span>
+            <input id="soundOn" type="checkbox" role="switch">
+          </label>
+          <label class="switch-row compact">
+            <span><strong>시간 완료 소리</strong></span>
+            <input id="completionSoundOn" type="checkbox" role="switch">
+          </label>
+        </section>
+
+        <p id="settingsError" class="form-error" hidden role="alert"></p>
+      </div>
+
+      <div class="dialog-footer">
+        <button id="cancelSettingsButton" class="button button-secondary" type="button">취소</button>
+        <button class="button button-primary" type="submit">설정 저장</button>
+      </div>
+    </form>
+  </dialog>
+
+  <noscript>MiniSeismo를 사용하려면 브라우저에서 JavaScript를 켜주세요.</noscript>
+</body>
+</html>
