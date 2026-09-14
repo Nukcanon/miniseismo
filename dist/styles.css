@@ -32,6 +32,51 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.site-header {
+  color: #fff;
+  background: linear-gradient(120deg, #004b9b, #0066cc 62%, #0789d2);
+  box-shadow: 0 4px 18px rgba(0, 63, 129, .22);
+}
+
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: min(1040px, calc(100% - 32px));
+  min-height: 76px;
+  margin: 0 auto;
+}
+
+.site-brand {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-brand-copy { display: grid; gap: 1px; }
+.site-brand-copy strong { font-size: 1.23rem; letter-spacing: -.025em; line-height: 1.2; }
+.site-brand-copy small { color: rgba(255, 255, 255, .72); font-size: .67rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+
+.site-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, .25);
+  border-radius: 10px;
+  color: #fff;
+  background: rgba(255, 255, 255, .1);
+  font-size: .86rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.site-home-link:hover { background: rgba(255, 255, 255, .18); }
+.site-home-link svg { width: 17px; height: 17px; }
+
 button, input { font: inherit; }
 button { touch-action: manipulation; }
 
@@ -254,6 +299,11 @@ input[type="number"]:disabled { color: #94a3b8; background: #f1f5f9; }
 
 noscript { display: block; margin: 20px; padding: 16px; border-radius: 10px; color: #991b1b; background: #fef2f2; }
 
+@media (max-width: 720px) {
+  .site-header-inner { width: min(100% - 22px, 1040px); min-height: 68px; }
+  .site-brand-copy small { display: none; }
+}
+
 @media (max-width: 900px) {
   .control-deck { grid-template-columns: minmax(170px,.75fr) 1.25fr; }
   .actions { grid-column: 1 / -1; grid-template-columns: 1.3fr 1fr 1fr; }
@@ -288,6 +338,11 @@ noscript { display: block; margin: 20px; padding: 16px; border-radius: 10px; col
   .sensor-status { font-size: .75rem; }
   .live-values { gap: 7px; }
   .live-values strong { font-size: .96rem; }
+}
+
+@media (max-width: 420px) {
+  .site-home-link { width: 40px; padding: 0; justify-content: center; font-size: 0; }
+  .site-home-link svg { width: 19px; height: 19px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
